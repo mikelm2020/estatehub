@@ -8,7 +8,12 @@ from database import SessionLocal
 from models import Properties
 from schemas import PropertyRequest
 
-router = APIRouter()
+from .auth import get_current_agent
+
+router = APIRouter(
+    prefix="/properties",
+    tags=["properties"],
+)
 
 
 def get_db():
@@ -20,6 +25,7 @@ def get_db():
 
 
 db_dependency = Annotated[Session, Depends(get_db)]
+agent_dependency = Annotated[dict, Depends(get_current_agent)]
 
 
 @router.get("/", status_code=status.HTTP_200_OK)
@@ -27,7 +33,7 @@ async def read_all(db: db_dependency):
     return db.query(Properties).all()
 
 
-@router.get("/property{property_id}", status_code=status.HTTP_200_OK)
+@router.get("/{property_id}", status_code=status.HTTP_200_OK)
 async def read_property(db: db_dependency, property_id: str):
     property_model = db.query(Properties).filter(Properties.id == property_id).first()
     if property_model is not None:
@@ -37,18 +43,37 @@ async def read_property(db: db_dependency, property_id: str):
     )
 
 
-@router.post("/property", status_code=status.HTTP_201_CREATED)
-async def create_property(db: db_dependency, property_request: PropertyRequest):
-    property_model = Properties(**property_request.dict())
+@router.post("/", status_code=status.HTTP_201_CREATED)
+async def create_property(
+    agent: agent_dependency, db: db_dependency, property_request: PropertyRequest
+):
+    if agent is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication failed"
+        )
+    property_model = Properties(**property_request.dict(), agent_id=agent.get("id"))
     db.add(property_model)
     db.commit()
 
 
-@router.put("/property/{property_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.put("/{property_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def update_property(
-    db: db_dependency, property_request: PropertyRequest, property_id: str
+    agent: agent_dependency,
+    db: db_dependency,
+    property_request: PropertyRequest,
+    property_id: str,
 ):
-    property_model = db.query(Properties).filter(Properties.id == property_id).first()
+    if agent is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication failed"
+        )
+
+    property_model = (
+        db.query(Properties)
+        .filter(Properties.id == property_id)
+        .filter(Properties.agent_id == agent.get("id"))
+        .first()
+    )
     if property_model is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Property not found"
@@ -72,13 +97,24 @@ async def update_property(
         db.commit()
 
 
-@router.delete("/property/{property_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_property(db: db_dependency, property_id: str):
-    property_model = db.query(Properties).filter(Properties.id == property_id).first()
+@router.delete("/{property_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_property(agent: agent_dependency, db: db_dependency, property_id: str):
+    if agent is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication failed"
+        )
+    property_model = (
+        db.query(Properties)
+        .filter(Properties.id == property_id)
+        .filter(Properties.agent_id == agent.get("id"))
+        .first()
+    )
     if property_model is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Property not found"
         )
-    db.query(Properties).filter(Properties.id == property_id).delete()
+    db.query(Properties).filter(Properties.id == property_id).filter(
+        Properties.agent_id == agent.get("id")
+    ).delete()
 
     db.commit()

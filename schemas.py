@@ -1,11 +1,13 @@
 from pydantic import BaseModel, Field
 
+from config import PropertiesStatus, PropertiesType, RoleUser
+
 
 class PropertyRequest(BaseModel):
     address_id: str
-    type: str
+    type: PropertiesType
     price: float = Field(ge=0)
-    status: str
+    status: PropertiesStatus
     agent_id: str
     title: str = Field(min_length=1, max_length=100)
     subtitle: str = Field(min_length=1, max_length=100)
@@ -24,9 +26,13 @@ class CreateAgentRequest(BaseModel):
     username: str
     password: str
     phone: str
-    role: str
+    role: RoleUser
 
 
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+
+class StateRequest(BaseModel):
+    state: str

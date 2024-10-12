@@ -51,3 +51,8 @@ class AppointmentStatus(Enum):
     EN_SEGUIMIENTO = "follow up"
     COMPLETADA = "completed"
     AGENDADA = "scheduled"
+
+
+class RoleUser(Enum):
+    ADMIN = "admin"
+    AGENT = "agent"

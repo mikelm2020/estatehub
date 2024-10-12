@@ -14,8 +14,12 @@ from sqlalchemy import (
 )
 from sqlalchemy import Enum as SqlEnum
 
-from config import PropertiesStatus, PropertiesType
+from config import PropertiesStatus, PropertiesType, RoleUser
 from database import Base
+
+
+def get_enum_values(enum_class):
+    return [member.value for member in enum_class]
 
 
 class Properties(Base):
@@ -23,9 +27,13 @@ class Properties(Base):
 
     id = Column(Uuid, primary_key=True, index=True, default=uuid.uuid4)
     address_id = Column(Uuid, ForeignKey("addresses.id"))
-    type = Column(SqlEnum(PropertiesType), nullable=False)
+    type = Column(
+        SqlEnum(PropertiesType, values_callable=get_enum_values), nullable=False
+    )
     price = Column(Float, nullable=False)
-    status = Column(SqlEnum(PropertiesStatus), nullable=False)
+    status = Column(
+        SqlEnum(PropertiesStatus, values_callable=get_enum_values), nullable=False
+    )
     agent_id = Column(Uuid, ForeignKey("agents.id"))
     title = Column(String, nullable=False)
     subtitle = Column(String, nullable=False)
@@ -55,7 +63,11 @@ class Agents(Base):
     username = Column(String, nullable=False, unique=True)
     hashed_password = Column(String, nullable=False)
     phone = Column(String, nullable=False)
-    role = Column(String, nullable=False, default="agent")
+    role = Column(
+        SqlEnum(RoleUser, values_callable=get_enum_values),
+        nullable=False,
+        default=RoleUser.AGENT,
+    )
 
 
 class SimilarProperties(Base):
@@ -108,7 +120,7 @@ class Addresses(Base):
     address = Column(String, nullable=False)
 
 
-class states(Base):
+class States(Base):
     __tablename__ = "states"
 
     id = Column(Uuid, primary_key=True, index=True, default=uuid.uuid4)
@@ -123,7 +135,7 @@ class states(Base):
     state = Column(String, nullable=False)
 
 
-class cities(Base):
+class Cities(Base):
     __tablename__ = "cities"
 
     id = Column(Uuid, primary_key=True, index=True, default=uuid.uuid4)
