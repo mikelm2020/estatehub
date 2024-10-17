@@ -7,6 +7,7 @@ from starlette import status
 from database import SessionLocal
 from models import States
 from schemas import StateRequest
+from utils import convert_to_uuid
 
 from .auth import get_current_agent
 
@@ -35,7 +36,10 @@ async def read_all(db: db_dependency):
 
 @router.get("/{state_id}", status_code=status.HTTP_200_OK)
 async def read_state(db: db_dependency, state_id: str):
-    state_model = db.query(States).filter(States.id == state_id).first()
+    state_model = (
+        db.query(States).filter(States.id == convert_to_uuid(state_id)).first()
+    )
+
     if state_model is not None:
         return state_model
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="State not found")
@@ -56,7 +60,9 @@ async def create_state(
 
 @router.put("/{state_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def update_state(db: db_dependency, state_request: StateRequest, state_id: str):
-    state_model = db.query(States).filter(States.id == state_id).first()
+    state_model = (
+        db.query(States).filter(States.id == convert_to_uuid(state_id)).first()
+    )
     if state_model is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Property not found"
@@ -69,7 +75,9 @@ async def update_state(db: db_dependency, state_request: StateRequest, state_id:
 
 @router.delete("/{state_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_state(db: db_dependency, state_id: str):
-    state_model = db.query(States).filter(States.id == state_id).first()
+    state_model = (
+        db.query(States).filter(States.id == convert_to_uuid(state_id)).first()
+    )
     if state_model is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Property not found"

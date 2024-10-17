@@ -7,6 +7,7 @@ from starlette import status
 from database import SessionLocal
 from models import Properties
 from schemas import PropertyRequest
+from utils import convert_to_uuid
 
 from .auth import get_current_agent
 
@@ -35,7 +36,11 @@ async def read_all(db: db_dependency):
 
 @router.get("/{property_id}", status_code=status.HTTP_200_OK)
 async def read_property(db: db_dependency, property_id: str):
-    property_model = db.query(Properties).filter(Properties.id == property_id).first()
+    property_model = (
+        db.query(Properties)
+        .filter(Properties.id == convert_to_uuid(property_id))
+        .first()
+    )
     if property_model is not None:
         return property_model
     raise HTTPException(
@@ -70,8 +75,8 @@ async def update_property(
 
     property_model = (
         db.query(Properties)
-        .filter(Properties.id == property_id)
-        .filter(Properties.agent_id == agent.get("id"))
+        .filter(Properties.id == convert_to_uuid(property_id))
+        .filter(Properties.agent_id == convert_to_uuid(agent.get("id")))
         .first()
     )
     if property_model is None:
@@ -105,8 +110,8 @@ async def delete_property(agent: agent_dependency, db: db_dependency, property_i
         )
     property_model = (
         db.query(Properties)
-        .filter(Properties.id == property_id)
-        .filter(Properties.agent_id == agent.get("id"))
+        .filter(Properties.id == convert_to_uuid(property_id))
+        .filter(Properties.agent_id == convert_to_uuid(agent.get("id")))
         .first()
     )
     if property_model is None:
@@ -114,7 +119,7 @@ async def delete_property(agent: agent_dependency, db: db_dependency, property_i
             status_code=status.HTTP_404_NOT_FOUND, detail="Property not found"
         )
     db.query(Properties).filter(Properties.id == property_id).filter(
-        Properties.agent_id == agent.get("id")
+        Properties.agent_id == convert_to_uuid(agent.get("id"))
     ).delete()
 
     db.commit()

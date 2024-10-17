@@ -36,3 +36,8 @@ class Token(BaseModel):
 
 class StateRequest(BaseModel):
     state: str
+
+
+class AgentVerification(BaseModel):
+    password: str
+    new_password: str = Field(min_length=6)
