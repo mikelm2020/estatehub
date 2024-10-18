@@ -1,14 +1,14 @@
 from enum import Enum
 
 
-class PropertiesStatus(Enum):
+class PropertiesStatus(str, Enum):
     VENDIDO = "sold"
     RENTADO = "rented"
     EN_VENTA = "for sale"
     EN_ALQUILER = "for rent"
 
 
-class PropertiesType(Enum):
+class PropertiesType(str, Enum):
     CASA = "house"
     APARTAMENTO = "apartment"
     TERRENO = "land"
@@ -17,13 +17,13 @@ class PropertiesType(Enum):
     OTRO = "other"
 
 
-class TransactionType(Enum):
+class TransactionType(str, Enum):
     ALQUILER = "rent"
     VENTA = "sale"
     OTRA = "other"
 
 
-class InteractionProgressStage(Enum):
+class InteractionProgressStage(str, Enum):
     INICIADA = "started"
     COMPLETADA = "completed"
     CANCELADA = "canceled"
@@ -31,7 +31,7 @@ class InteractionProgressStage(Enum):
     EN_SEGUIMIENTO = "follow up"
 
 
-class InteractionType(Enum):
+class InteractionType(str, Enum):
     CONSULTA = "inquiry"
     CONTACTO = "contact"
     SOLICITUD = "request"
@@ -42,7 +42,7 @@ class InteractionType(Enum):
     OTRO = "other"
 
 
-class AppointmentStatus(Enum):
+class AppointmentStatus(str, Enum):
     CREADA = "created"
     CONFIRMADA = "confirmed"
     CANCELADA = "canceled"
@@ -53,6 +53,6 @@ class AppointmentStatus(Enum):
     AGENDADA = "scheduled"
 
 
-class RoleUser(Enum):
+class RoleUser(str, Enum):
     ADMIN = "admin"
     AGENT = "agent"

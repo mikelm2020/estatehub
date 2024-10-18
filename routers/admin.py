@@ -4,7 +4,6 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from starlette import status
 
-# from schemas import PropertyRequest
 import config
 from database import SessionLocal
 from models import Properties

@@ -56,7 +56,9 @@ async def create_property(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication failed"
         )
-    property_model = Properties(**property_request.dict(), agent_id=agent.get("id"))
+    property_model = Properties(
+        **property_request.model_dump(), agent_id=convert_to_uuid(agent.get("id"))
+    )
     db.add(property_model)
     db.commit()
 

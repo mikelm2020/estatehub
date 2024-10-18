@@ -65,7 +65,7 @@ async def update_state(db: db_dependency, state_request: StateRequest, state_id:
     )
     if state_model is None:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Property not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="State not found"
         )
         state_model.state = state_request.state
 
@@ -80,7 +80,7 @@ async def delete_state(db: db_dependency, state_id: str):
     )
     if state_model is None:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Property not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="State not found"
         )
     db.query(States).filter(States.id == state_id).delete()
 
