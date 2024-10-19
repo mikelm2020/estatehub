@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+SQLAlchemy
+bcrypt==4.0.1
+cryptography
+passlib
+python-multipart
+python-jose
+psycopg2-binary
